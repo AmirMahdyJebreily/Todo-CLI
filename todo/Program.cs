@@ -29,26 +29,30 @@ namespace todo
 
                     Console.WriteLine("  Command │ Options ");
                     Console.WriteLine(" ─────────┼─────────");
-                    static void _command(string title, string option, string tip = "")
-                    {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write($"  {title}");
-                        Console.ResetColor();
-                        Console.Write($" {"".PadLeft(7 - title.Length,' ')}│ ");
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.Write($"{option}");
-                        Console.ResetColor();
-                        Console.WriteLine($"   {tip}");
-                    }
 
-                    _command("add","[Task Title]");
-                    _command("add-sub","[Task ID] [sub Task title]");
-                    _command("fin","[Task Id] - [Sub task id]","input [Todo id] if dose not sub work exists...");
-                    _command("see","[EMPTY]");
+                    _writeTableItem("add", "[Task Title]");
+                    _writeTableItem("add-sub", "[Task ID] [sub Task title]");
+                    _writeTableItem("fin", "[Task Id] - [Sub task id]", "input just [Todo id] if dose not sub task exists...");
+                    _writeTableItem("del", "[Task Id] - [Sub task id]", "input just [Todo id] if dose not sub task exists...");
+                    _writeTableItem("see", "[EMPTY]");
 
                     System.Console.WriteLine("\n");
                 }
             }
         }
+
+        #region Static Methodes
+        static void _writeTableItem(string title, string option, string tip = "")
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write($"  {title}");
+            Console.ResetColor();
+            Console.Write($" {"".PadLeft(7 - title.Length, ' ')}│ ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write($"{option}");
+            Console.ResetColor();
+            Console.WriteLine($"   {tip}");
+        }
+        #endregion
     }
 }
