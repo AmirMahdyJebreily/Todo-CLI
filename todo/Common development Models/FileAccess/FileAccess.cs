@@ -20,12 +20,28 @@ namespace CoDevModels
             }
         }
 
+        // Constant Fields
         private const string _appFolderName = ".todocli";
+        private const string _appDBName = "tasks.json";
 
-        private static readonly string path = $"{BasePath}\\{_appFolderName}";
+        // Readonly Fields
+        private static readonly string path = Path.Combine(BasePath, _appFolderName);
+        private static readonly string db_path = Path.Combine(path, _appDBName);
 
 
-        // TODO : Methodes for CRUD data on file
+        #region Static Methodes
+
+        // Checking the existence of the application directiory in C:\ drive...
+        public static bool AppDirectoryExists() => Directory.Exists(path);
+
+        // Checking the existence of the application database in C:\ drive...
+        public static bool AppDBExists() => File.Exists(db_path);
+
+        #endregion
+
+        #region CRUD
+            
+        #endregion
 
 
     }
