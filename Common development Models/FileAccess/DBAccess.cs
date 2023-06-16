@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using todo.codevmodels.exceptions;
 
 namespace todo.codevmodels;
 
-public class FileAccess
+public class DBAccess
 {
 
     private static string BasePath
@@ -29,16 +31,22 @@ public class FileAccess
     private static readonly string path = Path.Combine(BasePath, _appFolderName);
     private static readonly string db_path = Path.Combine(path, _appDBName);
 
+    private List<TodoTask> _tasks;
+    public List<TodoTask> Tasks
+    {
+        get { return _tasks; }
+    }
+
+
 
     // Constructos
-    public FileAccess()
+    public DBAccess()
     {
         try
         {
             SetupRequ();
         }
         catch (System.Exception ex) { throw ex; }
-
     }
 
 
@@ -55,7 +63,7 @@ public class FileAccess
     #region DBFileSetup
 
     // make application directory in c:\
-    public static void MakeDirectory()
+    public void MakeDirectory()
     {
         if (!AppDirectoryExists())
         {
@@ -67,11 +75,14 @@ public class FileAccess
         }
     }
     // make database json file in path
-    public static void MakeDB()
+    public async void MakeDB()
     {
         if (!AppDBExists())
         {
-            File.Create(db_path);
+            using FileStream file = File.Create(db_path);
+            await JsonSerializer.SerializeAsync(file, Tasks);
+            await file.DisposeAsync();
+
         }
         else
         {
@@ -79,7 +90,7 @@ public class FileAccess
         }
     }
     // Setup directory and database file in c:\
-    public static void SetupRequ()
+    public void SetupRequ()
     {
         // use makedirectory methode
         try
@@ -102,7 +113,11 @@ public class FileAccess
     #endregion
 
     #region CRUD
-    
+    public void AddNewTask(TodoTask task)
+    {
+        _tasks.Add(task);
+
+    }
     #endregion
 
 
