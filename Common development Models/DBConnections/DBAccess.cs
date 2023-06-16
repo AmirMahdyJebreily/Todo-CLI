@@ -173,6 +173,4 @@ public class DBAccess
         _tasks.Add(task);
     }
     #endregion
-
-
 }
