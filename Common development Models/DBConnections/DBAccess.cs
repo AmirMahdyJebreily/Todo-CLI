@@ -1,35 +1,33 @@
-using System;
-using System.Collections.Generic;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using todo.codevmodels.exceptions;
 
 namespace todo.codevmodels;
 
 public class DBAccess
 {
-
+    // get windows user folder _app_folder_path
     private static string BasePath
     {
         get
         {
-            string path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
+            string _app_folder_path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
             if (Environment.OSVersion.Version.Major >= 6)
             {
-                path = Directory.GetParent(path).ToString();
+                _app_folder_path = Directory.GetParent(_app_folder_path).ToString();
             }
 
-            return path;
+            return _app_folder_path;
         }
     }
 
     // Constant Fields
     private const string _appFolderName = ".todocli";
-    private const string _appDBName = "tasks.json";
+    private const string _tasks_file_name = "tasks.json";
 
     // Readonly Fields
-    private static readonly string path = Path.Combine(BasePath, _appFolderName);
-    private static readonly string db_path = Path.Combine(path, _appDBName);
+    private static readonly string _app_folder_path = Path.Combine(BasePath, _appFolderName);
+    private static readonly string _app_internal_data_file_path = Path.Combine(_app_folder_path, "_application_internal_data_");
+    private string tasks_file_path = string.Empty;
 
     private List<TodoTask> _tasks;
     public List<TodoTask> Tasks
@@ -38,39 +36,67 @@ public class DBAccess
     }
 
 
+    // Constructors
+    private DBAccess(string usr_inp_path)
+    {
+        this.tasks_file_path = Path.Combine(usr_inp_path, _tasks_file_name);
+    }
+
+    private DBAccess()
+    {
+        this.tasks_file_path = Path.Combine(_app_folder_path, _tasks_file_name);
+    }
+
     // I use the Factory pattern because I need to call the async method when my class is created
     #region Factory
+
+    // for run async proccess in start of class
     private async Task<DBAccess> _initDB()
     {
         _tasks = await GetAllDataFromDB();
         return this;
     }
 
+    public static Task<DBAccess> CreateDBAsync(string usr_int_path) => new DBAccess(usr_int_path)._initDB();
     public static Task<DBAccess> CreateDBAsync() => new DBAccess()._initDB();
 
     #endregion
 
-    #region Static Methodes
+    #region Utils 
 
-    // Checking the existence of the application directiory in C:\ drive...
-    public static bool AppDirectoryExists() => Directory.Exists(path);
+    // Checking the existence of the application directiory in _app_folder_path
+    public bool AppDirectoryExists() => Directory.Exists(_app_folder_path);
 
-    // Checking the existence of the application database in C:\ drive...
-    public static bool AppDBExists() => File.Exists(db_path);
+    // Checking the existence of the application database in _app_folder_path
+    public bool AppDBExists() => File.Exists(tasks_file_path);
 
     public async Task WriteDB(FileStream dbFile) => await JsonSerializer.SerializeAsync(dbFile, Tasks);
     public async Task<List<TodoTask>> ReadDB(FileStream dbFile) => await JsonSerializer.DeserializeAsync<List<TodoTask>>(dbFile);
 
     #endregion
 
-    #region DBFileSetup
+    #region Internal data Setup
+    // save all internall datas
+    public async void SaveInternalData()
+    {
 
-    // make application directory in path
+        await File.WriteAllTextAsync(_app_internal_data_file_path
+           , JsonSerializer.Serialize(
+               new
+               {
+                   Path = tasks_file_path,
+               }));
+    }
+    #endregion
+
+    #region Tasks db File Setup
+
+    // make application directory in _app_folder_path
     public void MakeDirectory()
     {
         if (!AppDirectoryExists())
         {
-            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(_app_folder_path);
         }
         else
         {
@@ -78,12 +104,12 @@ public class DBAccess
         }
     }
 
-    // make database json file in path
+    // make database json file in tasks_file_path
     public async Task MakeDB()
     {
         if (!AppDBExists())
         {
-            using FileStream file = File.Create(db_path);
+            using FileStream file = File.Create(tasks_file_path);
             await WriteDB(file);
 
         }
@@ -93,7 +119,7 @@ public class DBAccess
         }
     }
 
-    // Setup directory and database file in path
+    // Setup directory and database file in them paths
     public async Task SetupRequ()
     {
         // use makedirectory methode
@@ -112,9 +138,9 @@ public class DBAccess
     {
         try
         {
-            if (!File.Exists(db_path))
+            if (!File.Exists(tasks_file_path))
             {
-                using FileStream file = File.OpenRead(db_path);
+                using FileStream file = File.OpenRead(tasks_file_path);
                 var res = await ReadDB(file);
                 await file.DisposeAsync();
                 return res;
@@ -127,14 +153,9 @@ public class DBAccess
         catch (Exception) { throw; }
     }
 
+    // get all data that's saved in the db file
     public async Task<List<TodoTask>> GetAllDataFromDB()
     {
-        if (!AppDirectoryExists())
-        {
-            await SetupRequ();
-            return new List<TodoTask>();
-        }
-
         if (!AppDBExists())
         {
             await SetupRequ();
@@ -150,7 +171,6 @@ public class DBAccess
     public void AddNewTask(TodoTask task)
     {
         _tasks.Add(task);
-
     }
     #endregion
 
