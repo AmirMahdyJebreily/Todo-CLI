@@ -89,7 +89,7 @@ public class DBAccess
     }
     #endregion
 
-    #region Tasks db File Setup
+    #region Tasks file starting setup
 
     // make application directory in _app_folder_path
     public void MakeDirectory()
@@ -133,6 +133,10 @@ public class DBAccess
         catch (Exception) { throw; }
     }
 
+    #endregion
+
+    #region Tasks file using API
+
     // Read all data from db file
     public async Task<List<TodoTask>> ReadDataFromDBFile()
     {
@@ -173,4 +177,5 @@ public class DBAccess
         _tasks.Add(task);
     }
     #endregion
+
 }
