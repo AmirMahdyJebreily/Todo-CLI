@@ -38,17 +38,17 @@ public class DBAccess
     }
 
 
-
-    // Constructos
-    public DBAccess()
+    // I use the Factory pattern because I need to call the async method when my class is created
+    #region Factory
+    private async Task<DBAccess> _initDB()
     {
-        try
-        {
-            SetupRequ();
-        }
-        catch (System.Exception ex) { throw ex; }
+        _tasks = await GetAllDataFromDB();
+        return this;
     }
 
+    public static Task<DBAccess> CreateDBAsync() => new DBAccess()._initDB();
+
+    #endregion
 
     #region Static Methodes
 
@@ -58,11 +58,14 @@ public class DBAccess
     // Checking the existence of the application database in C:\ drive...
     public static bool AppDBExists() => File.Exists(db_path);
 
+    public async Task WriteDB(FileStream dbFile) => await JsonSerializer.SerializeAsync(dbFile, Tasks);
+    public async Task<List<TodoTask>> ReadDB(FileStream dbFile) => await JsonSerializer.DeserializeAsync<List<TodoTask>>(dbFile);
+
     #endregion
 
     #region DBFileSetup
 
-    // make application directory in c:\
+    // make application directory in path
     public void MakeDirectory()
     {
         if (!AppDirectoryExists())
@@ -74,14 +77,14 @@ public class DBAccess
             throw new DirectoryExistsException("the directory alredy exists");
         }
     }
+
     // make database json file in path
-    public async void MakeDB()
+    public async Task MakeDB()
     {
         if (!AppDBExists())
         {
             using FileStream file = File.Create(db_path);
-            await JsonSerializer.SerializeAsync(file, Tasks);
-            await file.DisposeAsync();
+            await WriteDB(file);
 
         }
         else
@@ -89,25 +92,56 @@ public class DBAccess
             throw new DBFileExistsException("the database file alredy exists");
         }
     }
-    // Setup directory and database file in c:\
-    public void SetupRequ()
+
+    // Setup directory and database file in path
+    public async Task SetupRequ()
     {
         // use makedirectory methode
-        try
-        {
-            MakeDirectory();
-        }
+        try { MakeDirectory(); }
         catch (DirectoryExistsException) { }
-        catch { throw; }
+        catch (Exception) { throw; }
 
         // use make db methode
+        try { await MakeDB(); }
+        catch (DBFileExistsException) { }
+        catch (Exception) { throw; }
+    }
+
+    // Read all data from db file
+    public async Task<List<TodoTask>> ReadDataFromDBFile()
+    {
         try
         {
-            MakeDB();
+            if (!File.Exists(db_path))
+            {
+                using FileStream file = File.OpenRead(db_path);
+                var res = await ReadDB(file);
+                await file.DisposeAsync();
+                return res;
+            }
+            else
+            {
+                throw new FileNotFoundException("the databse file was not found");
+            }
         }
-        catch (DBFileExistsException) { }
-        catch { throw; }
+        catch (Exception) { throw; }
+    }
 
+    public async Task<List<TodoTask>> GetAllDataFromDB()
+    {
+        if (!AppDirectoryExists())
+        {
+            await SetupRequ();
+            return new List<TodoTask>();
+        }
+
+        if (!AppDBExists())
+        {
+            await SetupRequ();
+            return new List<TodoTask>();
+        }
+
+        return await ReadDataFromDBFile();
     }
 
     #endregion
