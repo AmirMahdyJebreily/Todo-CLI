@@ -53,7 +53,7 @@ public class DBAccess
     // for run async proccess in start of class
     private async Task<DBAccess> _initDB()
     {
-        _tasks = await GetAllDataFromDB();
+        _tasks = await GetAllDataFromTasks();
         return this;
     }
 
@@ -70,8 +70,8 @@ public class DBAccess
     // Checking the existence of the application database in _app_folder_path
     public bool AppDBExists() => File.Exists(tasks_file_path);
 
-    public async Task WriteDB(FileStream dbFile) => await JsonSerializer.SerializeAsync(dbFile, Tasks);
-    public async Task<List<TodoTask>> ReadDB(FileStream dbFile) => await JsonSerializer.DeserializeAsync<List<TodoTask>>(dbFile);
+    public async Task WriteTasksFile(FileStream dbFile) => await JsonSerializer.SerializeAsync(dbFile, Tasks);
+    public async Task<List<TodoTask>> ReadTasksFile(FileStream dbFile) => await JsonSerializer.DeserializeAsync<List<TodoTask>>(dbFile);
 
     #endregion
 
@@ -104,13 +104,13 @@ public class DBAccess
         }
     }
 
-    // make database json file in tasks_file_path
-    public async Task MakeDB()
+    // make tasks json file in tasks_file_path
+    public async Task MakeTasksFiles()
     {
         if (!AppDBExists())
         {
             using FileStream file = File.Create(tasks_file_path);
-            await WriteDB(file);
+            await WriteTasksFile(file);
 
         }
         else
@@ -128,24 +128,25 @@ public class DBAccess
         catch (Exception) { throw; }
 
         // use make db methode
-        try { await MakeDB(); }
+        try { await MakeTasksFiles(); }
         catch (DBFileExistsException) { }
         catch (Exception) { throw; }
     }
 
     #endregion
 
+
     #region Tasks file using API
 
     // Read all data from db file
-    public async Task<List<TodoTask>> ReadDataFromDBFile()
+    public async Task<List<TodoTask>> ReadDataFromTasksFile()
     {
         try
         {
             if (!File.Exists(tasks_file_path))
             {
                 using FileStream file = File.OpenRead(tasks_file_path);
-                var res = await ReadDB(file);
+                var res = await ReadTasksFile(file);
                 await file.DisposeAsync();
                 return res;
             }
@@ -158,7 +159,7 @@ public class DBAccess
     }
 
     // get all data that's saved in the db file
-    public async Task<List<TodoTask>> GetAllDataFromDB()
+    public async Task<List<TodoTask>> GetAllDataFromTasks()
     {
         if (!AppDBExists())
         {
@@ -166,8 +167,10 @@ public class DBAccess
             return new List<TodoTask>();
         }
 
-        return await ReadDataFromDBFile();
+        return await ReadDataFromTasksFile();
     }
+
+
 
     #endregion
 
