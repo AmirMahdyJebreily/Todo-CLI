@@ -70,7 +70,7 @@ public class DBAccess
     // Checking the existence of the application database in _app_folder_path
     public bool AppDBExists() => File.Exists(tasks_file_path);
 
-    public async Task WriteTasksFile(FileStream dbFile) => await JsonSerializer.SerializeAsync(dbFile, Tasks);
+    public async Task WriteJsonFromTasksFile(FileStream dbFile) => await JsonSerializer.SerializeAsync(dbFile, Tasks);
     public async Task<List<TodoTask>> ReadTasksFile(FileStream dbFile) => await JsonSerializer.DeserializeAsync<List<TodoTask>>(dbFile);
 
     #endregion
@@ -110,7 +110,7 @@ public class DBAccess
         if (!AppDBExists())
         {
             using FileStream file = File.Create(tasks_file_path);
-            await WriteTasksFile(file);
+            await WriteJsonFromTasksFile(file);
 
         }
         else
