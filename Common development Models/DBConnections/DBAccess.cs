@@ -170,7 +170,22 @@ public class DBAccess
         return await ReadDataFromTasksFile();
     }
 
+    // write all data into tasks file
+    public async Task WriteOnTasksFile()
+    {
+        if (!AppDBExists())
+        {
+            await SetupRequ();
+        }
+        else
+        {
+            using FileStream file = File.OpenRead(this.tasks_file_path);
+            await WriteJsonToTasksFile(file);
+            await file.DisposeAsync();
+        }
 
+
+    }
 
     #endregion
 
