@@ -208,6 +208,14 @@ public class DBAccess
         await WriteOnTasksFile();
     }
 
+    // get task by id
+    public TodoTask GetTaskById(int taskId)
+    {
+        return _tasks[taskId];
+    }
+
+
+
     #endregion
 
 }
