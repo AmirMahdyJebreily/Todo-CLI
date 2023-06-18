@@ -183,16 +183,15 @@ public class DBAccess
             await WriteJsonToTasksFile(file);
             await file.DisposeAsync();
         }
-
-
     }
 
     #endregion
 
     #region CRUD
-    public void AddNewTask(TodoTask task)
+    public async Task AddNewTask(TodoTask task)
     {
         _tasks.Add(task);
+        await WriteOnTasksFile();
     }
     #endregion
 
