@@ -228,6 +228,12 @@ public class DBAccess
         await WriteOnTasksFile();
     }
 
+    // delete task from file
+    public async Task RemoveTask(int taskId)
+    {
+        _tasks.Remove(_tasks[taskId]);
+        await WriteOnTasksFile();
+    }
     
 
     #endregion
