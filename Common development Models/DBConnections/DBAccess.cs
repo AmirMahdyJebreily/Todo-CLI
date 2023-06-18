@@ -201,6 +201,13 @@ public class DBAccess
         return _tasks;  
     }
 
+    // get all tasks from db asyncronus
+    public async Task<List<TodoTask>> GetAllTasksAsync()
+    {
+        _tasks = await ReadDataFromTasksFile();
+        return _tasks;
+    }
+
     // edit tasks
     public async Task EditTaskTitleById(int taskId, string newTitle)
     {
@@ -214,11 +221,14 @@ public class DBAccess
         return _tasks[taskId];
     }
 
+    //set task done or not
     public async Task setTaskDoneState(int taskId, bool done)
     {
         _tasks[taskId].IsDone = done;
         await WriteOnTasksFile();
     }
+
+    
 
     #endregion
 
