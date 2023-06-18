@@ -201,6 +201,13 @@ public class DBAccess
         return _tasks;  
     }
 
+    // edit tasks
+    public async Task EditTaskTitleById(int taskId, string newTitle)
+    {
+        _tasks[taskId].Title = newTitle;
+        await WriteOnTasksFile();
+    }
+
     #endregion
 
 }
