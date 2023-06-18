@@ -214,7 +214,11 @@ public class DBAccess
         return _tasks[taskId];
     }
 
-
+    public async Task setTaskDoneState(int taskId, bool done)
+    {
+        _tasks[taskId].IsDone = done;
+        await WriteOnTasksFile();
+    }
 
     #endregion
 
