@@ -20,6 +20,8 @@ public class DBAccess
         }
     }
 
+    // in future most to get same for Unix based opereatinf systems
+
     // Constant Fields
     private const string _appFolderName = ".todocli";
     private const string _tasks_file_name = "tasks.json";
@@ -35,13 +37,11 @@ public class DBAccess
         get { return _tasks; }
     }
 
-
     // Constructors
     private DBAccess(string usr_inp_path)
     {
         this.tasks_file_path = Path.Combine(usr_inp_path, _tasks_file_name);
     }
-
     private DBAccess()
     {
         this.tasks_file_path = Path.Combine(_app_folder_path, _tasks_file_name);
@@ -134,7 +134,6 @@ public class DBAccess
     }
 
     #endregion
-
 
     #region Tasks file using API
 
@@ -234,8 +233,6 @@ public class DBAccess
         _tasks.Remove(_tasks[taskId]);
         await WriteOnTasksFile();
     }
-    
 
     #endregion
-
 }
