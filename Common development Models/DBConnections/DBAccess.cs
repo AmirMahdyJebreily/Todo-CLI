@@ -194,6 +194,13 @@ public class DBAccess
         _tasks.Add(task);
         await WriteOnTasksFile();
     }
+
+    // get all tasks from db
+    public List<TodoTask> GetAllTasks()
+    {
+        return _tasks;  
+    }
+
     #endregion
 
 }
