@@ -188,6 +188,7 @@ public class DBAccess
     #endregion
 
     #region CRUD
+    // add task to db
     public async Task AddNewTask(TodoTask task)
     {
         _tasks.Add(task);
