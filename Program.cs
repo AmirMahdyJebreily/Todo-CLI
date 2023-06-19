@@ -3,13 +3,13 @@ using todo.codevmodels;
 
 namespace todo;
 
-public static class todo
+public class todo
 {
     static DBAccess db;
 
-    public static async void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        if (!db.AppDBExists())
+        if (!(await DBAccess.TaskFileInputed()))
         {
             Console.Write("\n\nenter the location of your todo tasks data: ");
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -83,8 +83,50 @@ public static class todo
 
         Console.WriteLine("Your all todo tasks : \n\n");
 
+        var tasks = db.GetAllTasks();
+        if (tasks.Count > 0)
+        {
+            // Unfulfilled tasks
+            var unfulfilledTasks = tasks.Where(t => t.IsDone == false).ToList();
+            Console.WriteLine("\n\n   .:: Tasks for doing : \n\n");
+            if (tasks.Count > 0)
+            {
+                foreach (var item in unfulfilledTasks)
+                {
+                    _writeTask(item);
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("\n\t\tYou have no task to perform\n\n\n");
+                Console.ResetColor();
+            }
 
+            // Tasks that have been completed
+            var completedtasks = tasks.Where(t => t.IsDone == true).ToList();
+            Console.WriteLine("\n\n   .:: Tasks that have been completed : \n\n");
+            if (tasks.Count > 0)
+            {
+                foreach (var item in completedtasks)
+                {
+                    _writeTask(item);
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("\n\t\tYou did not complete any task\n\n\n");
+                Console.ResetColor();
+            }
 
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("\n\n\n\tyou dont have any task...\n\n\n");
+            Console.ResetColor();
+        }
 
     }
 
@@ -109,6 +151,23 @@ public static class todo
         Console.ResetColor();
         Console.WriteLine($"   {errorMes}");
     }
+    static void _writeTask(TodoTask task, int tabIndex = 2)
+    {
+        Console.ForegroundColor= ConsoleColor.Green;
+        Console.Write($"\t\t[{task.Id}] ");
+        Console.ResetColor();
+        Console.WriteLine(task.Title);
+        if(task.SubTasks != null) 
+        {
+            if(task.SubTasks.Count > 0)
+            {
+                foreach (var item in task.SubTasks)
+                {
+                    _writeTask(item,tabIndex + 1);
+                }
+            } 
+        }
+    }
 
-    #endregion
+    #endregion  
 }

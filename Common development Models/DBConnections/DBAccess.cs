@@ -28,7 +28,7 @@ public class DBAccess
 
     // Readonly Fields
     private static readonly string _app_folder_path = Path.Combine(BasePath, _appFolderName);
-    private static readonly string _app_internal_data_file_path = Path.Combine(_app_folder_path, "_application_internal_data_");
+    private static string _app_internal_data_file_path = Path.Combine(_app_folder_path, "_application_internal_data_");
     private string tasks_file_path = string.Empty;
 
     private List<TodoTask> _tasks;
@@ -72,6 +72,19 @@ public class DBAccess
     // Checking the existence of the application database in _app_folder_path
     public bool AppDBExists() => File.Exists(tasks_file_path);
 
+    public static async Task<bool> TaskFileInputed()
+    {
+        try
+        {
+            await ReadTaskPathFromInternalData();
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+        return true;
+    }
+
     public async Task WriteJsonToTasksFile(FileStream dbFile) => await JsonSerializer.SerializeAsync(dbFile, Tasks);
     public async Task<List<TodoTask>> ReadJsonFromTasksFile(FileStream dbFile) => await JsonSerializer.DeserializeAsync<List<TodoTask>>(dbFile);
 
@@ -93,7 +106,7 @@ public class DBAccess
     }
 
     // save all internall datas
-    public async void SaveInternalData()
+    private async void SaveInternalData()
     {
 
         await File.WriteAllTextAsync(_app_internal_data_file_path
@@ -102,6 +115,16 @@ public class DBAccess
                {
                    Path = tasks_file_path,
                }));
+    }
+
+    private static async Task ReadTaskPathFromInternalData()
+    {
+        var res = await JsonSerializer.DeserializeAsync<List<string>>(File.OpenRead(_app_internal_data_file_path));
+        if(res == null)
+        {
+            throw new Exception();
+        }
+        
     }
     #endregion
 
