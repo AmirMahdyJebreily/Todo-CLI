@@ -1,12 +1,38 @@
 ﻿using todo.convertion;
+using todo.codevmodels;
 
 namespace todo;
 
 public static class todo
 {
-    public static void Main(string[] args)
+    static DBAccess db;
+
+    public static async void Main(string[] args)
     {
-        MainCommandHandler(args.Flags().ToArray());
+        if (!db.AppDBExists())
+        {
+            Console.Write("\n\nenter the location of your todo tasks data: ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            string location = Console.ReadLine();
+            if (DBAccess.TaskFileLocationIsValid(location))
+            {
+                db = await DBAccess.CreateDBAsync(location);
+            }
+            else
+            {
+                _writeError("inputed path was not valid !");
+            }
+        }
+
+        List<string> commands = args.Commands().ToList<string>();
+        if (commands.Count == 0)
+        {
+            MainCommandHandler(args.Flags().ToArray());
+        }
+        else if (commands[0] == "see")
+        {
+
+        }
     }
 
     // Command Handlers are methods that execute commands in an organized and orderly manner based on SOLID principles.
@@ -45,15 +71,23 @@ public static class todo
 
             Console.WriteLine("Use --help for learn commands \n");
         }
-        else
+        else if (flags.Contains("--help"))
         {
-            if (flags.Contains("--help"))
-            {
-                HelpFlagHandler();
-            }
+            HelpFlagHandler();
         }
 
     }
+
+    static void SeeCommandHandler()
+    {
+
+        Console.WriteLine("Your all todo tasks : \n\n");
+
+
+
+
+    }
+
     #endregion
 
     #region Static Methodes
@@ -67,6 +101,13 @@ public static class todo
         Console.Write($"{option}");
         Console.ResetColor();
         Console.WriteLine($"   {tip}");
+    }
+    static void _writeError(string errorMes)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.Write("[ERR0R]");
+        Console.ResetColor();
+        Console.WriteLine($"   {errorMes}");
     }
 
     #endregion

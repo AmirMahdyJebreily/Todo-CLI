@@ -41,10 +41,12 @@ public class DBAccess
     private DBAccess(string usr_inp_path)
     {
         this.tasks_file_path = Path.Combine(usr_inp_path, _tasks_file_name);
+        SaveInternalData();
     }
     private DBAccess()
     {
         this.tasks_file_path = Path.Combine(_app_folder_path, _tasks_file_name);
+        SaveInternalData();
     }
 
     // I use the Factory pattern because I need to call the async method when my class is created
@@ -53,11 +55,11 @@ public class DBAccess
     // for run async proccess in start of class
     private async Task<DBAccess> _initDB()
     {
-        _tasks = await GetAllDataFromTasks();
+        this._tasks = await GetAllDataFromTasks();
         return this;
     }
 
-    public static Task<DBAccess> CreateDBAsync(string usr_int_path) => new DBAccess(usr_int_path)._initDB();
+    public static Task<DBAccess> CreateDBAsync(string usr_inp_path) => new DBAccess(usr_inp_path)._initDB();
     public static Task<DBAccess> CreateDBAsync() => new DBAccess()._initDB();
 
     #endregion
@@ -76,6 +78,20 @@ public class DBAccess
     #endregion
 
     #region Internal data Setup
+    // Check the path is valid or not 
+    public static bool TaskFileLocationIsValid(string filePath)
+    {
+        try
+        {
+            var dir = new DirectoryInfo(filePath);
+            return dir.Exists;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+    }
+
     // save all internall datas
     public async void SaveInternalData()
     {
@@ -197,7 +213,7 @@ public class DBAccess
     // get all tasks from db
     public List<TodoTask> GetAllTasks()
     {
-        return _tasks;  
+        return _tasks;
     }
 
     // get all tasks from db asyncronus
