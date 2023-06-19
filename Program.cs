@@ -45,6 +45,14 @@ public static class todo
 
             Console.WriteLine("Use --help for learn commands \n");
         }
+        else
+        {
+            if (flags.Contains("--help"))
+            {
+                HelpFlagHandler();
+            }
+        }
+
     }
     #endregion
 
