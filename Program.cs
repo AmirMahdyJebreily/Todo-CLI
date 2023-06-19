@@ -1,14 +1,39 @@
-﻿using System;
+﻿using todo.convertion;
 
 namespace todo;
 
-public class todo
+public static class todo
 {
     public static void Main(string[] args)
     {
-        if (args.Length == 0)
+        MainCommandHandler(args.Flags().ToArray());
+    }
+
+    // Command Handlers are methods that execute commands in an organized and orderly manner based on SOLID principles.
+    #region Commands Handlers
+    static void MainCommandHandler(params string[] flags)
+    {
+        #region Main Command Flags Handlers
+        void HelpFlagHandler()
         {
-            System.Console.WriteLine("Welcome to the todo cli \n\n");
+            Console.WriteLine("Todo CLI commands : \n\n");
+
+            Console.WriteLine("  Command │ Options ");
+            Console.WriteLine(" ─────────┼─────────");
+
+            _writeTableItem("add", "[Task Title]");
+            _writeTableItem("add-sub", "[Task ID] [sub Task title]");
+            _writeTableItem("fin", "[Task Id] - [Sub task id]", "input just [Todo id] if dose not sub task exists...");
+            _writeTableItem("del", "[Task Id] - [Sub task id]", "input just [Todo id] if dose not sub task exists...");
+            _writeTableItem("see", "[EMPTY]");
+
+            Console.WriteLine("\n");
+        }
+        #endregion
+
+        if (flags.Length == 0) // no flag inputed
+        {
+            Console.WriteLine("Welcome to the todo cli \n\n");
 
             Console.Write("Use this tempelate : \n\t");
             Console.ForegroundColor = ConsoleColor.Magenta;
@@ -20,26 +45,8 @@ public class todo
 
             Console.WriteLine("Use --help for learn commands \n");
         }
-        else
-        {
-            // --help flag
-            if (args[0] == "--help")
-            {
-                Console.WriteLine("Todo CLI commands : \n\n");
-
-                Console.WriteLine("  Command │ Options ");
-                Console.WriteLine(" ─────────┼─────────");
-
-                _writeTableItem("add", "[Task Title]");
-                _writeTableItem("add-sub", "[Task ID] [sub Task title]");
-                _writeTableItem("fin", "[Task Id] - [Sub task id]", "input just [Todo id] if dose not sub task exists...");
-                _writeTableItem("del", "[Task Id] - [Sub task id]", "input just [Todo id] if dose not sub task exists...");
-                _writeTableItem("see", "[EMPTY]");
-
-                System.Console.WriteLine("\n");
-            }
-        }
     }
+    #endregion
 
     #region Static Methodes
     static void _writeTableItem(string title, string option, string tip = "")
@@ -53,5 +60,6 @@ public class todo
         Console.ResetColor();
         Console.WriteLine($"   {tip}");
     }
+
     #endregion
 }
