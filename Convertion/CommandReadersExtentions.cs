@@ -6,7 +6,7 @@
 
         public static IEnumerable<string> Commands(this IEnumerable<string> termArgs)
         {
-            IEnumerable<string> res = new List<string>();
+            List<string> res = new List<string>();
             for (int i = 0; i < termArgs.Count(); i++)
             {
                 if (termArgs.ToList()[i].StartsWith("--"))
@@ -14,7 +14,7 @@
                     return res;
                 }
 
-                res.ToList().Add(termArgs.ToList()[i]);
+                res.Add(termArgs.ToList()[i]);
             }
             return res;
         }
