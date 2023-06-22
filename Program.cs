@@ -34,7 +34,6 @@ public class todo
         await db.InitializeTasks();
 
         List<string> commands = args.Commands().ToList<string>();
-        Console.WriteLine(commands.Count);
         if (commands.Count == 0)
         {
             MainCommandHandler(args.Flags().ToArray());
@@ -94,6 +93,7 @@ public class todo
         Console.WriteLine("Your all todo tasks : \n\n");
 
         var tasks = db.GetAllTasks();
+        
         if (tasks.Count > 0)
         {
             // Unfulfilled tasks
@@ -109,7 +109,7 @@ public class todo
             else
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine("\n\t\tYou have no task to perform\n\n\n");
+                Console.WriteLine("\n\n\t\tYou have no task to perform\n\n\n");
                 Console.ResetColor();
             }
 
@@ -126,7 +126,7 @@ public class todo
             else
             {
                 Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine("\n\t\tYou did not complete any task\n\n\n");
+                Console.WriteLine("\n\n\t\tYou did not complete any task\n\n\n");
                 Console.ResetColor();
             }
 
@@ -134,7 +134,7 @@ public class todo
         else
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("\n\n\n\tyou dont have any task...\n\n\n");
+            Console.WriteLine("\n\n\tyou dont have any task...\n\n\n");
             Console.ResetColor();
         }
 

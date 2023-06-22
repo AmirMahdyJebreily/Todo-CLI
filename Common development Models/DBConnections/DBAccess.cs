@@ -190,7 +190,10 @@ public class DBAccess
                 using FileStream file = File.OpenRead(_Internal_Data._tasks_file_path);
                 var res = await ReadJsonFromTasksFile(file);
                 await file.DisposeAsync();
-                return res;
+                if (res is not null)
+                    return res;
+                // else
+                return new List<TodoTask>();
             }
             else
             {
