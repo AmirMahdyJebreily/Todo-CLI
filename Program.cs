@@ -9,7 +9,8 @@ public class todo
 
     public static async Task Main(string[] args)
     {
-        if (!(await DBAccess.TaskFileInputed()))
+        var taskJsonExist = (await DBAccess.TaskFileInputed());
+        if (!taskJsonExist)
         {
             Console.Write("\n\nenter the location of your todo tasks data: ");
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -22,6 +23,10 @@ public class todo
             {
                 _writeError("inputed path was not valid !");
             }
+        }
+        else
+        {
+
         }
 
         List<string> commands = args.Commands().ToList<string>();

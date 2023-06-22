@@ -5,29 +5,13 @@ namespace todo.codevmodels;
 
 public class DBAccess
 {
-    // get windows user folder _app_folder_path
-    private static string BasePath
-    {
-        get
-        {
-            string _app_folder_path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
-            if (Environment.OSVersion.Version.Major >= 6)
-            {
-                _app_folder_path = Directory.GetParent(_app_folder_path).ToString();
-            }
-
-            return _app_folder_path;
-        }
-    }
-
-    // in future most to get same for Unix based opereatinf systems
-
+   
     // Constant Fields
     private const string _appFolderName = ".todocli";
     private const string _tasks_file_name = "tasks.json";
 
     // Readonly Fields
-    private static readonly string _app_folder_path = Path.Combine(BasePath, _appFolderName);
+    private static readonly string _app_folder_path = Path.Combine(_appFolderName);
     private static string _app_internal_data_file_path = Path.Combine(_app_folder_path, "_application_internal_data_");
     private string tasks_file_path = string.Empty;
 
@@ -41,6 +25,15 @@ public class DBAccess
     private DBAccess(string usr_inp_path)
     {
         this.tasks_file_path = Path.Combine(usr_inp_path, _tasks_file_name);
+
+        if(!AppDirectoryExists())
+        {
+            // use makedirectory methode
+            try { MakeDirectory(); }
+            catch (DirectoryExistsException) { }
+            catch (Exception) { throw; }
+        }
+
         SaveInternalData();
     }
     private DBAccess()
@@ -76,7 +69,7 @@ public class DBAccess
     {
         try
         {
-            await ReadTaskPathFromInternalData();
+             await ReadTaskPathFromInternalData();
         }
         catch (Exception ex)
         {
@@ -91,6 +84,20 @@ public class DBAccess
     #endregion
 
     #region Internal data Setup
+
+    // make application directory in _app_folder_path
+    public void MakeDirectory()
+    {
+        if (!AppDirectoryExists())
+        {
+            Directory.CreateDirectory(_app_folder_path);
+        }
+        else
+        {
+            throw new DirectoryExistsException("the directory alredy exists");
+        }
+    }
+
     // Check the path is valid or not 
     public static bool TaskFileLocationIsValid(string filePath)
     {
@@ -130,19 +137,6 @@ public class DBAccess
 
     #region Tasks file starting setup
 
-    // make application directory in _app_folder_path
-    public void MakeDirectory()
-    {
-        if (!AppDirectoryExists())
-        {
-            Directory.CreateDirectory(_app_folder_path);
-        }
-        else
-        {
-            throw new DirectoryExistsException("the directory alredy exists");
-        }
-    }
-
     // make tasks json file in tasks_file_path
     public async Task MakeTasksFiles()
     {
@@ -161,11 +155,6 @@ public class DBAccess
     // Setup directory and database file in them paths
     public async Task SetupRequ()
     {
-        // use makedirectory methode
-        try { MakeDirectory(); }
-        catch (DirectoryExistsException) { }
-        catch (Exception) { throw; }
-
         // use make db methode
         try { await MakeTasksFiles(); }
         catch (DBFileExistsException) { }
@@ -190,7 +179,8 @@ public class DBAccess
             }
             else
             {
-                throw new FileNotFoundException("the databse file was not found");
+                await SetupRequ();
+                return new List<TodoTask>();
             }
         }
         catch (Exception) { throw; }
