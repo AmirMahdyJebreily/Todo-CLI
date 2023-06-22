@@ -9,25 +9,24 @@ public class todo
 
     public static async Task Main(string[] args)
     {
-        var taskJsonExist = (await DBAccess.TaskFileInputed());
-        if (!taskJsonExist)
+        db = await DBAccess.CreateDBAsync();
+
+        if (!db.TaskFilePathExist())
         {
             Console.Write("\n\nenter the location of your todo tasks data: ");
             Console.ForegroundColor = ConsoleColor.Cyan;
             string location = Console.ReadLine();
             if (DBAccess.TaskFileLocationIsValid(location))
             {
-                db = await DBAccess.CreateDBAsync(location);
+                db.EnterTasksFilePath(location);
             }
             else
             {
                 _writeError("inputed path was not valid !");
             }
         }
-        else
-        {
-
-        }
+        
+        await db.InitializeTasks();
 
         List<string> commands = args.Commands().ToList<string>();
         if (commands.Count == 0)
@@ -158,19 +157,19 @@ public class todo
     }
     static void _writeTask(TodoTask task, int tabIndex = 2)
     {
-        Console.ForegroundColor= ConsoleColor.Green;
+        Console.ForegroundColor = ConsoleColor.Green;
         Console.Write($"\t\t[{task.Id}] ");
         Console.ResetColor();
         Console.WriteLine(task.Title);
-        if(task.SubTasks != null) 
+        if (task.SubTasks != null)
         {
-            if(task.SubTasks.Count > 0)
+            if (task.SubTasks.Count > 0)
             {
                 foreach (var item in task.SubTasks)
                 {
-                    _writeTask(item,tabIndex + 1);
+                    _writeTask(item, tabIndex + 1);
                 }
-            } 
+            }
         }
     }
 

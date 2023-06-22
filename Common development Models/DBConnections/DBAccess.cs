@@ -1,19 +1,22 @@
 using System.Text.Json;
 using todo.codevmodels.exceptions;
+using todo.Common_development_Models.DBConnections;
 
 namespace todo.codevmodels;
 
 public class DBAccess
 {
-   
+
     // Constant Fields
     private const string _appFolderName = ".todocli";
     private const string _tasks_file_name = "tasks.json";
 
     // Readonly Fields
     private static readonly string _app_folder_path = Path.Combine(_appFolderName);
-    private static string _app_internal_data_file_path = Path.Combine(_app_folder_path, "_application_internal_data_");
-    private string tasks_file_path = string.Empty;
+    private static readonly string _app_internal_data_file_path = Path.Combine(_app_folder_path, "_application_internal_data_");
+
+    //internal data
+    private _internal_data_model _Internal_Data;
 
     private List<TodoTask> _tasks;
     public List<TodoTask> Tasks
@@ -21,26 +24,6 @@ public class DBAccess
         get { return _tasks; }
     }
 
-    // Constructors
-    private DBAccess(string usr_inp_path)
-    {
-        this.tasks_file_path = Path.Combine(usr_inp_path, _tasks_file_name);
-
-        if(!AppDirectoryExists())
-        {
-            // use makedirectory methode
-            try { MakeDirectory(); }
-            catch (DirectoryExistsException) { }
-            catch (Exception) { throw; }
-        }
-
-        SaveInternalData();
-    }
-    private DBAccess()
-    {
-        this.tasks_file_path = Path.Combine(_app_folder_path, _tasks_file_name);
-        SaveInternalData();
-    }
 
     // I use the Factory pattern because I need to call the async method when my class is created
     #region Factory
@@ -48,11 +31,10 @@ public class DBAccess
     // for run async proccess in start of class
     private async Task<DBAccess> _initDB()
     {
-        this._tasks = await GetAllDataFromTasks();
+        await SetupInternalData();
         return this;
     }
 
-    public static Task<DBAccess> CreateDBAsync(string usr_inp_path) => new DBAccess(usr_inp_path)._initDB();
     public static Task<DBAccess> CreateDBAsync() => new DBAccess()._initDB();
 
     #endregion
@@ -63,20 +45,7 @@ public class DBAccess
     public bool AppDirectoryExists() => Directory.Exists(_app_folder_path);
 
     // Checking the existence of the application database in _app_folder_path
-    public bool AppDBExists() => File.Exists(tasks_file_path);
-
-    public static async Task<bool> TaskFileInputed()
-    {
-        try
-        {
-             await ReadTaskPathFromInternalData();
-        }
-        catch (Exception ex)
-        {
-            return false;
-        }
-        return true;
-    }
+    public bool AppDBExists() => File.Exists(_Internal_Data._tasks_file_path);
 
     public async Task WriteJsonToTasksFile(FileStream dbFile) => await JsonSerializer.SerializeAsync(dbFile, Tasks);
     public async Task<List<TodoTask>> ReadJsonFromTasksFile(FileStream dbFile) => await JsonSerializer.DeserializeAsync<List<TodoTask>>(dbFile);
@@ -115,24 +84,66 @@ public class DBAccess
     // save all internall datas
     private async void SaveInternalData()
     {
-
-        await File.WriteAllTextAsync(_app_internal_data_file_path
-           , JsonSerializer.Serialize(
-               new
-               {
-                   Path = tasks_file_path,
-               }));
+        await File.WriteAllTextAsync(_app_internal_data_file_path, JsonSerializer.Serialize(_Internal_Data));
     }
 
-    private static async Task ReadTaskPathFromInternalData()
+    private async Task<_internal_data_model> ReadInternalData()
     {
-        var res = await JsonSerializer.DeserializeAsync<List<string>>(File.OpenRead(_app_internal_data_file_path));
-        if(res == null)
+        using (var file = File.OpenRead(_app_internal_data_file_path))
         {
-            throw new Exception();
+
+            return await JsonSerializer.DeserializeAsync<_internal_data_model>(file);
         }
-        
+
     }
+
+    private async Task SetupInternalData()
+    {
+        var internalDataFile = new FileInfo(_app_internal_data_file_path);
+        if (internalDataFile.Exists)
+        {
+            _Internal_Data = await ReadInternalData();
+        }
+        else
+        {
+            _Internal_Data = new _internal_data_model() { _tasks_file_path = string.Empty };
+            if (!AppDirectoryExists())
+            {
+                // use makedirectory methode
+                try { MakeDirectory(); }
+                catch (DirectoryExistsException) { }
+                catch (Exception) { throw; }
+            }
+
+            SaveInternalData();
+        }
+    }
+
+    public bool TaskFilePathExist()
+    {
+        return (!string.IsNullOrEmpty(_Internal_Data._tasks_file_path)) && (File.Exists(_Internal_Data._tasks_file_path));
+    }
+
+    public void EnterTasksFilePath(string location)
+    {
+
+        if (DBAccess.TaskFileLocationIsValid(location))
+        {
+            _Internal_Data._tasks_file_path = Path.Combine(location, _tasks_file_name);
+            SaveInternalData();
+        }
+        else
+        {
+            throw new FileNotFoundException("file not found");
+        }
+
+    }
+
+    public async Task InitializeTasks()
+    {
+        this._tasks = await GetAllDataFromTasks();
+    }
+
     #endregion
 
     #region Tasks file starting setup
@@ -142,9 +153,11 @@ public class DBAccess
     {
         if (!AppDBExists())
         {
-            using FileStream file = File.Create(tasks_file_path);
-            await WriteJsonToTasksFile(file);
+            using (FileStream file = File.Create(_Internal_Data._tasks_file_path))
+            {
 
+                await WriteJsonToTasksFile(file);
+            }
         }
         else
         {
@@ -170,9 +183,9 @@ public class DBAccess
     {
         try
         {
-            if (!File.Exists(tasks_file_path))
+            if (File.Exists(_Internal_Data._tasks_file_path))
             {
-                using FileStream file = File.OpenRead(tasks_file_path);
+                using FileStream file = File.OpenRead(_Internal_Data._tasks_file_path);
                 var res = await ReadJsonFromTasksFile(file);
                 await file.DisposeAsync();
                 return res;
@@ -189,6 +202,11 @@ public class DBAccess
     // get all data that's saved in the db file
     public async Task<List<TodoTask>> GetAllDataFromTasks()
     {
+        if (string.IsNullOrEmpty(_Internal_Data._tasks_file_path))
+        {
+            await SetupRequ();
+            return new List<TodoTask>();
+        }
         if (!AppDBExists())
         {
             await SetupRequ();
@@ -207,7 +225,7 @@ public class DBAccess
         }
         else
         {
-            using FileStream file = File.OpenRead(this.tasks_file_path);
+            using FileStream file = File.Open(this._Internal_Data._tasks_file_path, FileMode.Create);
             await WriteJsonToTasksFile(file);
             await file.DisposeAsync();
         }
@@ -219,6 +237,7 @@ public class DBAccess
     // add task to db
     public async Task AddNewTask(TodoTask task)
     {
+
         _tasks.Add(task);
         await WriteOnTasksFile();
     }
