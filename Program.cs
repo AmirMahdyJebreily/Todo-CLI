@@ -35,7 +35,7 @@ public class todo
         }
         else if (commands[0] == "see")
         {
-
+            SeeCommandHandler();
         }
     }
 
