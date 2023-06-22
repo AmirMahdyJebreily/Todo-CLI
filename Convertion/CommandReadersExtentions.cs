@@ -9,7 +9,7 @@
             IEnumerable<string> res = new List<string>();
             for (int i = 0; i < termArgs.Count(); i++)
             {
-                if (!termArgs.ToList()[i].StartsWith("--"))
+                if (termArgs.ToList()[i].StartsWith("--"))
                 {
                     return res;
                 }
