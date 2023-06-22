@@ -19,6 +19,11 @@ public class todo
             if (DBAccess.TaskFileLocationIsValid(location))
             {
                 db.EnterTasksFilePath(location);
+                await Task.Delay(100);  
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write("\nSuccess");
+                Console.ResetColor();
+                Console.Write($" : the file {db.GetTaskFilePath()} succesfully created ! \n\n");
             }
             else
             {
@@ -29,6 +34,7 @@ public class todo
         await db.InitializeTasks();
 
         List<string> commands = args.Commands().ToList<string>();
+        Console.WriteLine(commands.Count);
         if (commands.Count == 0)
         {
             MainCommandHandler(args.Flags().ToArray());

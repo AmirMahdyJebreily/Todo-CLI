@@ -50,6 +50,8 @@ public class DBAccess
     public async Task WriteJsonToTasksFile(FileStream dbFile) => await JsonSerializer.SerializeAsync(dbFile, Tasks);
     public async Task<List<TodoTask>> ReadJsonFromTasksFile(FileStream dbFile) => await JsonSerializer.DeserializeAsync<List<TodoTask>>(dbFile);
 
+    public string GetTaskFilePath() => _Internal_Data._tasks_file_path;
+
     #endregion
 
     #region Internal data Setup
