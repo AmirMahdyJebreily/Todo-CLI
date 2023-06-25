@@ -19,7 +19,7 @@ public class todo
             if (DBAccess.TaskFileLocationIsValid(location))
             {
                 db.EnterTasksFilePath(location);
-                await Task.Delay(100);  
+                await Task.Delay(100);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write("\nSuccess");
                 Console.ResetColor();
@@ -30,7 +30,7 @@ public class todo
                 _writeError("inputed path was not valid !");
             }
         }
-        
+
         await db.InitializeTasks();
 
         List<string> commands = args.Commands().ToList<string>();
@@ -93,7 +93,7 @@ public class todo
         Console.WriteLine("Your all todo tasks : \n\n");
 
         var tasks = db.GetAllTasks();
-        
+
         if (tasks.Count > 0)
         {
             // Unfulfilled tasks
@@ -138,6 +138,17 @@ public class todo
             Console.ResetColor();
         }
 
+    }
+
+    static async Task AddCommandHandler(string[] terminalArgs, params string[] flags)
+    {
+        await db.AddNewTask(new TodoTask()
+        {
+            IsDone = false,
+            SubTasks = new List<TodoTask>(),
+            Id = 1, // db.SetId
+            Title = string.Join(" ",terminalArgs)
+        });
     }
 
     #endregion
