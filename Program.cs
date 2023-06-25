@@ -87,12 +87,12 @@ public class todo
 
     }
 
-    static void SeeCommandHandler()
+    static async void SeeCommandHandler()
     {
 
         Console.WriteLine("Your all todo tasks : \n\n");
 
-        var tasks = db.GetAllTasks();
+        var tasks = await db.GetAllTasksAsync();
 
         if (tasks.Count > 0)
         {
@@ -146,9 +146,10 @@ public class todo
         {
             IsDone = false,
             SubTasks = new List<TodoTask>(),
-            Id = 1, // db.SetId
+            Id = Utils.SetId(db.Tasks),
             Title = string.Join(" ",terminalArgs)
         });
+        Console.WriteLine("A new task was registered");
     }
 
     #endregion
