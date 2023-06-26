@@ -20,22 +20,19 @@ namespace todo
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("[ERR0R]");
             Console.ResetColor();
-            Console.WriteLine($"   {errorMes}"); 
+            Console.WriteLine($"   {errorMes}");
         }
         public static void _writeTask(TodoTask task, int tabIndex = 2)
         {
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = (task.IsDone) ? ConsoleColor.Green : ConsoleColor.Yellow;
             Console.Write($"\t\t[{task.Id}] ");
             Console.ResetColor();
-            Console.WriteLine(task.Title);
-            if (task.SubTasks != null)
+            Console.WriteLine(task.Title + ((task.IsDone) ? " (Done)" : string.Empty));
+            if (task.SubTasks.Count > 0)
             {
-                if (task.SubTasks.Count > 0)
+                foreach (var item in task.SubTasks)
                 {
-                    foreach (var item in task.SubTasks)
-                    {
-                        _writeTask(item, tabIndex + 1);
-                    }
+                    _writeTask(item, tabIndex + 1);
                 }
             }
         }

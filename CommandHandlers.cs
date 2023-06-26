@@ -48,19 +48,17 @@ namespace todo
 
         public static async void SeeCommandHandler()
         {
-
-            Console.WriteLine("Your all todo tasks : \n\n");
-
-            var tasks = await Container.db.GetAllTasksAsync();
-
-            if (tasks.Count > 0)
+            try
             {
-                // Unfulfilled tasks
-                var unfulfilledTasks = tasks.Where(t => t.IsDone == false).ToList();
-                Console.WriteLine("\n\n   .:: Tasks for doing : \n\n");
+
+
+                Console.WriteLine("Your all todo tasks : \n");
+
+                var tasks = Container.db.GetAllTasks();
+
                 if (tasks.Count > 0)
                 {
-                    foreach (var item in unfulfilledTasks)
+                    foreach (var item in tasks)
                     {
                         TerminalComponents._writeTask(item);
                     }
@@ -68,34 +66,12 @@ namespace todo
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine("\n\n\t\tYou have no task to perform\n\n\n");
+                    Console.WriteLine("\n\n\tyou dont have any task...\n\n\n");
                     Console.ResetColor();
                 }
-
-                // Tasks that have been completed
-                var completedtasks = tasks.Where(t => t.IsDone == true).ToList();
-                Console.WriteLine("\n\n   .:: Tasks that have been completed : \n\n");
-                if (tasks.Count > 0)
-                {
-                    foreach (var item in completedtasks)
-                    {
-                        TerminalComponents._writeTask(item);
-                    }
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine("\n\n\t\tYou did not complete any task\n\n\n");
-                    Console.ResetColor();
-                }
-
+                Console.WriteLine();
             }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine("\n\n\tyou dont have any task...\n\n\n");
-                Console.ResetColor();
-            }
+            catch (Exception ex) { throw; }
 
         }
 

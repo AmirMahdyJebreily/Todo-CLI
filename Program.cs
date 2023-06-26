@@ -32,6 +32,7 @@ public class todo
 
         await Container.db.InitializeTasks();
 
+
         List<string> commands = args.Commands().ToList<string>();
         if (commands.Count == 0)
         {
@@ -41,13 +42,14 @@ public class todo
         {
             CommandHandlers.SeeCommandHandler();
         }
-        else if(commands[0] == "add")
+        else if (commands[0] == "add")
         {
             Console.Write("enter task title : ");
-            Console.ForegroundColor= ConsoleColor.Cyan;
+            Console.ForegroundColor = ConsoleColor.Cyan;
             await CommandHandlers.AddCommandHandler(Console.ReadLine());
             Console.ResetColor();
         }
+
         
     }
 }
