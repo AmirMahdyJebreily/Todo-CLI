@@ -84,7 +84,10 @@ namespace todo
                 Id = Utils.SetId(Container.db.Tasks),
                 Title = title
             });
-            Console.WriteLine("A new task was registered");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("[SUCCESS]");
+            Console.ResetColor();
+            Console.WriteLine("A new task was registered \n");
         }
 
     }
