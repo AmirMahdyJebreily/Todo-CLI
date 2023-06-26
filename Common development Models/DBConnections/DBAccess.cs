@@ -21,7 +21,10 @@ public class DBAccess
     private List<TodoTask> _tasks;
     public List<TodoTask> Tasks
     {
-        get { return _tasks; }
+        get {
+            if (_tasks == null) return new List<TodoTask>();
+            return _tasks;
+        }
     }
 
 
