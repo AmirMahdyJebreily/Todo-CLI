@@ -41,6 +41,13 @@ public class todo
         {
             CommandHandlers.SeeCommandHandler();
         }
+        else if(commands[0] == "add")
+        {
+            Console.Write("enter task title : ");
+            Console.ForegroundColor= ConsoleColor.Cyan;
+            await CommandHandlers.AddCommandHandler(Console.ReadLine());
+            Console.ResetColor();
+        }
         
     }
 }

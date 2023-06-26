@@ -99,14 +99,14 @@ namespace todo
 
         }
 
-        public static async Task AddCommandHandler(string[] terminalArgs, params string[] flags)
+        public static async Task AddCommandHandler(string title, params string[] flags)
         {
             await Container.db.AddNewTask(new TodoTask()
             {
                 IsDone = false,
                 SubTasks = new List<TodoTask>(),
                 Id = Utils.SetId(Container.db.Tasks),
-                Title = string.Join(" ", terminalArgs)
+                Title = title
             });
             Console.WriteLine("A new task was registered");
         }
