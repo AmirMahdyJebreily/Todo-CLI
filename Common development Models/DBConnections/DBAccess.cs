@@ -21,7 +21,8 @@ public class DBAccess
     private List<TodoTask> _tasks;
     public List<TodoTask> Tasks
     {
-        get {
+        get
+        {
             if (_tasks == null) return new List<TodoTask>();
             return _tasks;
         }
@@ -243,10 +244,32 @@ public class DBAccess
 
     #region CRUD
     // add task to db
-    public async Task AddNewTask(TodoTask task)
+    public async Task AddNewTask(string title, bool isDone, int? parrentId)
     {
-
-        _tasks.Add(task);
+        if (parrentId == null)
+        {
+            _tasks.Add(new TodoTask()
+            {
+                Id = Utils.SetId(_tasks),
+                Title = title,
+                IsDone = isDone,
+                SubTasks = new List<TodoTask>()
+            });
+        }
+        else
+        {
+            TodoTask matchedItem = _tasks.FirstOrDefault(t => t.Id == parrentId);
+            if (matchedItem != null)
+            {
+                _tasks[_tasks.IndexOf(matchedItem)].SubTasks.Add(new TodoTask()
+                {
+                    Id = Utils.SetId(_tasks),
+                    Title = title,
+                    IsDone = isDone,
+                    SubTasks = new List<TodoTask>()
+                });
+            }
+        }
         await WriteOnTasksFile();
     }
 

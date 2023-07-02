@@ -49,42 +49,33 @@ namespace todo
         public static void SeeCommandHandler()
         {
 
-                Console.WriteLine("Your all todo tasks : \n");
+            Console.WriteLine("Your all todo tasks : \n");
 
-                var tasks = Container.db.GetAllTasks();
+            var tasks = Container.db.GetAllTasks();
 
-                if (tasks.Count > 0)
+            if (tasks.Count > 0)
+            {
+                foreach (var item in tasks)
                 {
-                    foreach (var item in tasks)
-                    {
-                        TerminalComponents._writeTask(item);
-                    }
+                    TerminalComponents._writeTask(item);
                 }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine("\n\n\tyou dont have any task...\n\n\n");
-                    Console.ResetColor();
-                }
-                Console.WriteLine();
-            
-
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("\n\n\tyou dont have any task...\n\n\n");
+                Console.ResetColor();
+            }
+            Console.WriteLine();
         }
 
-        public static async Task AddCommandHandler(string title)
+        public static async Task AddCommandHandler(string title, int? parrentId)
         {
-            await Container.db.AddNewTask(new TodoTask()
-            {
-                IsDone = false,
-                SubTasks = new List<TodoTask>(),
-                Id = Utils.SetId(Container.db.Tasks),
-                Title = title
-            });
+            await Container.db.AddNewTask(title, false, parrentId.Value);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("[SUCCESS]");
             Console.ResetColor();
             Console.WriteLine("A new task was registered \n");
         }
-
     }
 }
