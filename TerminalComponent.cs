@@ -2,7 +2,7 @@
 
 namespace todo
 {
-    public class TerminalComponents
+    public static class TerminalComponents
     {
         public static void _writeTableItem(string title, string option, string tip = "")
         {
@@ -28,7 +28,8 @@ namespace todo
             Console.Write($"\t\t[{task.Id}] ");
             Console.ResetColor();
             Console.WriteLine(task.Title + ((task.IsDone) ? " (Done)" : string.Empty));
-            if (task.SubTasks.Count > 0)
+
+            if (task.SubTasks != null && task.SubTasks.Count > 0)
             {
                 foreach (var item in task.SubTasks)
                 {

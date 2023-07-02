@@ -46,11 +46,8 @@ namespace todo
 
         }
 
-        public static async void SeeCommandHandler()
+        public static void SeeCommandHandler()
         {
-            try
-            {
-
 
                 Console.WriteLine("Your all todo tasks : \n");
 
@@ -70,12 +67,11 @@ namespace todo
                     Console.ResetColor();
                 }
                 Console.WriteLine();
-            }
-            catch (Exception ex) { throw; }
+            
 
         }
 
-        public static async Task AddCommandHandler(string title, params string[] flags)
+        public static async Task AddCommandHandler(string title)
         {
             await Container.db.AddNewTask(new TodoTask()
             {

@@ -3,7 +3,7 @@ using todo.codevmodels;
 
 namespace todo;
 
-public class todo
+public static class Todo
 {
 
     public static async Task Main(string[] args)
